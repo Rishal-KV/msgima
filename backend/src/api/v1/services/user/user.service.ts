@@ -1,6 +1,6 @@
 import { HTTP } from "../../../../config/http-status.config";
 import { AppError } from "../../../../middleware/error.middleware";
-import { UserModel } from "../../../../models/user.model";
+import { IUser, UserModel } from "../../../../models/user.model";
 import type { ServiceResponse } from "../../../../typings";
 import { formValidationSchema } from "../../../../utils/validators/user";
 
@@ -54,7 +54,6 @@ export class UserCreateService {
         phone: value.phone,
         profileUrl: value.profileUrl,
         dob: value.dob ? new Date(value.dob) : undefined,
-        role: "user",
       });
 
       return {
@@ -66,6 +65,21 @@ export class UserCreateService {
     } catch (error) {
       if (error instanceof AppError) throw error;
 
+      throw new AppError((error as Error).message, HTTP.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getAll(): Promise<ServiceResponse<IUser[]>> {
+    try {
+      const users = await UserModel.find().sort({ createdAt: -1 });
+
+      return {
+        success: true,
+        message: "Users fetched successfully",
+        data: users,
+        status: HTTP.OK,
+      };
+    } catch (error) {
       throw new AppError((error as Error).message, HTTP.INTERNAL_SERVER_ERROR);
     }
   }

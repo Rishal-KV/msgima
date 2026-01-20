@@ -1,8 +1,8 @@
 dist
 logs
 node_modules
-.env.development
-.env.production
-.env
-.env*
-.env.*
+.development
+.production
+
+*
+.*

@@ -9,5 +9,6 @@ const userRoutes: express.Router = express.Router();
 const userController = new UserController();
 
 userRoutes.post("/create", userController.createUser);
+userRoutes.get("/", userController.getAllUsers);
 
 export default userRoutes;
