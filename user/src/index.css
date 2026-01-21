@@ -38,7 +38,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;
 
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
@@ -71,38 +71,6 @@
   --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
 body {
   @apply bg-background text-foreground;
 }
@@ -112,4 +80,36 @@ h1 {
   line-height: 1.1;
 }
 
-/* Add any custom animations or utilities if needed */
+/* Custom styles for react-phone-number-input */
+.PhoneInput {
+  @apply flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors;
+}
+
+.PhoneInput:focus-within {
+  @apply ring-1 ring-ring;
+}
+
+.PhoneInputInput {
+  @apply flex-1 bg-transparent border-none outline-none placeholder:text-muted-foreground;
+}
+
+.PhoneInputCountry {
+  @apply mr-2 relative;
+}
+
+.PhoneInputCountrySelect {
+  @apply absolute top-0 left-0 h-full w-full opacity-0 cursor-pointer;
+}
+
+/* Ensure the native select options are visible */
+.PhoneInputCountrySelect option {
+  @apply bg-background text-foreground;
+}
+
+.PhoneInputCountryIcon {
+  @apply flex items-center;
+}
+
+.PhoneInputCountryIcon--border {
+  @apply shadow-none border-none bg-transparent;
+}

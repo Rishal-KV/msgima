@@ -1,30 +1,25 @@
 "use client"
 
+import "react-phone-number-input/style.css"
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
 import {
     Dialog,
     DialogContent,
@@ -42,15 +37,13 @@ const formSchema = z.object({
     email: z.string().email({
         message: "Please enter a valid email address.",
     }),
-    phone: z.string().min(10, {
-        message: "Phone number must be at least 10 characters.",
-    }).regex(/^\+[1-9]\d{1,14}$/, {
-        message: "Phone number must start with a country code (e.g. +1234567890).",
+    phone: z.string().refine((val) => val && isValidPhoneNumber(val), {
+        message: "Invalid phone number",
     }),
     profileUrl: z.string().url({
         message: "Please enter a valid URL.",
     }).optional().or(z.literal("")),
-    dob: z.date().optional(),
+    dob: z.string().optional(),
 })
 
 interface AddUserFormProps {
@@ -66,20 +59,25 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
             email: "",
             phone: "",
             profileUrl: "",
+            dob: "",
         },
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             await axios.post("http://localhost:8000/api/v1/user/create", values)
+            toast.success("User created successfully!")
             form.reset()
             setOpen(false)
             if (onSuccess) onSuccess()
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to create user", error)
-            // Ideally set form error here
+            const message = error.response?.data?.message || "Failed to create user. Please try again."
+            toast.error(message)
         }
     }
+
+    const today = new Date().toISOString().split("T")[0]
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -128,11 +126,13 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
                                 <FormItem>
                                     <FormLabel>Phone Number</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="+1234567890" {...field} />
+                                        <PhoneInput
+                                            placeholder="Enter phone number"
+                                            value={field.value}
+                                            onChange={(value) => field.onChange(value || "")}
+                                            defaultCountry="US"
+                                        />
                                     </FormControl>
-                                    <FormDescription>
-                                        Include country code (e.g., +1)
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -154,44 +154,23 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
                             control={form.control}
                             name="dob"
                             render={({ field }) => (
-                                <FormItem className="flex flex-col">
+                                <FormItem>
                                     <FormLabel>Date of Birth (Optional)</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PPP")
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                    date > new Date() || date < new Date("1900-01-01")
-                                                }
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <FormControl>
+                                        <Input
+                                            type="date"
+                                            max={today}
+                                            {...field}
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Submit
+                        </Button>
                     </form>
                 </Form>
             </DialogContent>

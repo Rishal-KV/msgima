@@ -1,6 +1,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
+import { Badge } from "@/components/ui/badge"
 
 export type UserPayment = {
     _id: string
@@ -37,5 +38,18 @@ export const columns: ColumnDef<UserPayment>[] = [
     {
         accessorKey: "syncStatus",
         header: "Sync Status",
+        cell: ({ row }) => {
+            const status = row.getValue("syncStatus") as string
+            const variantMap: Record<string, "success" | "destructive" | "warning"> = {
+                SUCCESS: "success",
+                FAILED: "destructive",
+                PENDING: "warning",
+            }
+            return (
+                <Badge variant={variantMap[status] || "outline"}>
+                    {status}
+                </Badge>
+            )
+        }
     },
 ]
