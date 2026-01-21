@@ -33,6 +33,7 @@ export const loadEnv = (): void => {
 };
 
 loadEnv();
+console.log({ cor: process.env.CORS_ALLOWED_ORIGINS })
 
 export const ENV = {
   app: {

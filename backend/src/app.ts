@@ -11,6 +11,7 @@ import { allowedOrigins } from "./config/origins.config";
 import { errorHandler } from "./middleware/error.middleware";
 import logger from "./utils/logger.util";
 import "./cron/user-sync.cron";
+import "./cron/keep-alive.cron";
 import "./workers/user-sync.worker";
 
 const app: Express = express();
