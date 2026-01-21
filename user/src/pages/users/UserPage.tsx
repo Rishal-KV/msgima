@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { columns, type UserPayment } from "@/components/users/columns"
 import { DataTable } from "@/components/ui/data-table"
 import { AddUserForm } from "@/components/users/add-user-form"
-import axios from "axios"
+import api from "@/lib/api"
 
 export default function UserPage() {
     const [data, setData] = useState<UserPayment[]>([])
@@ -11,7 +11,8 @@ export default function UserPage() {
     const fetchData = async () => {
         setLoading(true)
         try {
-            const response = await axios.get("http://localhost:8000/api/v1/user")
+            const response = await api.get("/user")
+            console.log(response.data)
             if (response.data.success) {
                 setData(response.data.data)
             }

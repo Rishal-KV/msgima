@@ -8,7 +8,7 @@ const allowedOrigins = [
   "http://localhost:3002",
   "http://localhost:3003",
   "http://localhost:3004",
-  "http://localhost:5173",
+  "http://localhost:5174",
 
 ];
 

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import axios from "axios"
+import api from "@/lib/api"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 
@@ -71,7 +71,7 @@ export function AddUserForm({ onSuccess }: AddUserFormProps) {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            await axios.post("http://localhost:8000/api/v1/user/create", values)
+            await api.post("/user/create", values)
             form.reset()
             setOpen(false)
             if (onSuccess) onSuccess()
