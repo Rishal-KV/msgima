@@ -3,6 +3,7 @@ import { columns, type UserPayment } from "@/components/users/columns"
 import { DataTable } from "@/components/ui/data-table"
 import { AddUserForm } from "@/components/users/add-user-form"
 import { Input } from "@/components/ui/input"
+import api from "@/lib/api"
 import {
     Select,
     SelectContent,
@@ -10,7 +11,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import axios from "axios"
 
 export default function UserPage() {
     const [data, setData] = useState<UserPayment[]>([])
@@ -26,7 +26,7 @@ export default function UserPage() {
         try {
             const statusQuery = currentStatus === "ALL" ? "" : `&status=${currentStatus}`
             const searchQuery = currentSearch ? `&search=${encodeURIComponent(currentSearch)}` : ""
-            const response = await axios.get(`http://localhost:8000/api/v1/user?page=${currentPage}&limit=${limit}${searchQuery}${statusQuery}`)
+            const response = await api.get(`/user?page=${currentPage}&limit=${limit}${searchQuery}${statusQuery}`)
             if (response.data.success) {
                 setData(response.data.data)
                 if (response.data.meta) {
