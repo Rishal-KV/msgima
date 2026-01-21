@@ -32,7 +32,7 @@ export const loadEnv = (): void => {
   }
 
   // Validate required environment variables
-  const requiredEnvVars = ["MONGO_URI", "JWT_SECRET", "JWT_EXPIRES_IN"];
+  const requiredEnvVars = ["MONGO_URI"];
 
   const missingEnvVars = requiredEnvVars.filter(
     (envVar) => !process.env[envVar]

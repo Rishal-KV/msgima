@@ -1,6 +1,6 @@
 import { HTTP } from "../../../../config/http-status.config";
 import { AppError } from "../../../../middleware/error.middleware";
-import { UserModel } from "../../../../models/user.model";
+import { IUser, UserModel } from "../../../../models/user.model";
 import type { ServiceResponse } from "../../../../typings";
 import { formValidationSchema } from "../../../../utils/validators/user";
 
@@ -17,7 +17,7 @@ export class UserCreateService {
 
   async create(params: CreateUserParams): ServiceResponse {
     try {
-      // 🔐 Joi validation (same try/catch flow)
+      // 🔐 Joi validation
       const { error, value } = formValidationSchema.validate(params, {
         abortEarly: false,
       });
@@ -47,18 +47,17 @@ export class UserCreateService {
         throw new AppError("Phone number already exists", HTTP.CONFLICT);
       }
 
-      // 💾 Create user (NO password)
+      // 💾 Create user
       const user = await this.userModel.create({
         name: value.name,
         email: value.email,
         phone: value.phone,
         profileUrl: value.profileUrl,
         dob: value.dob ? new Date(value.dob) : undefined,
-        role: "user",
       });
 
       return {
-        data: { userId: user._id },
+        data: { id: user.id },
         message: "User created successfully",
         status: HTTP.CREATED,
         success: true,
@@ -66,6 +65,53 @@ export class UserCreateService {
     } catch (error) {
       if (error instanceof AppError) throw error;
 
+      throw new AppError((error as Error).message, HTTP.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getAll(
+    page: number = 1, 
+    limit: number = 10, 
+    search?: string, 
+    status?: string
+  ): Promise<ServiceResponse<IUser[]>> {
+    try {
+      const skip = (page - 1) * limit;
+      
+      const query: any = {};
+      
+      if (status) {
+        query.syncStatus = status;
+      }
+      
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } }
+        ];
+      }
+
+      const [users, total] = await Promise.all([
+        this.userModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        this.userModel.countDocuments(query)
+      ]);
+
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        success: true,
+        message: "Users fetched successfully",
+        data: users,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages
+        },
+        status: HTTP.OK,
+      };
+    } catch (error) {
       throw new AppError((error as Error).message, HTTP.INTERNAL_SERVER_ERROR);
     }
   }

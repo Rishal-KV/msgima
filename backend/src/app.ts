@@ -10,6 +10,8 @@ import { HTTP } from "./config/http-status.config";
 import { allowedOrigins } from "./config/origins.config";
 import { errorHandler } from "./middleware/error.middleware";
 import logger from "./utils/logger.util";
+import "./cron/user-sync.cron"
+import "./workers/user-sync.worker"
 
 const app: Express = express();
 

@@ -16,13 +16,14 @@ new Worker(
     "user-sync-queue",
     async (job) => {
         const users: ExternalPayload[] = job.data.users;
+        console.log({ users })
 
         try {
             console.log("🚀 Sending batch to external API");
 
-            // 🔁 Format DOB to DD/MM/YYYY
+            // 🔁 Format DOB to DD/M M/YYYY
             const payload = users.map((u) => ({
-                id: u.id,
+                id: Number(u.id),
                 name: u.name,
                 email: u.email,
                 phoneNumber: u.phoneNumber,
@@ -38,6 +39,7 @@ new Worker(
                 payload,
                 { timeout: 10000 }
             );
+            console.log({ response: response.data })
 
             const results: { id: string; status: "SUCCESS" | "FAILED" }[] =
                 response.data;
@@ -45,16 +47,36 @@ new Worker(
             // 🔄 Update DB based on response
             for (const result of results) {
                 await UserModel.updateOne(
-                    { _id: result.id },
+                    { id: result.id },
                     { syncStatus: result.status }
                 );
 
                 console.log(`✔ User ${result.id}: ${result.status}`);
             }
         } catch (error) {
-            console.error("❌ External API failed, marking batch FAILED");
+            let errorMessage = "Unknown error occurred";
 
-            // If API call fails entirely → mark all as FAILED
+            if (axios.isAxiosError(error)) {
+                // Server responded with error (4xx / 5xx)
+                if (error.response) {
+                    errorMessage =
+                        error.response.data?.message ||
+                        JSON.stringify(error.response.data);
+                }
+                // Request sent but no response
+                else if (error.request) {
+                    errorMessage = "No response from external API";
+                }
+                // Axios config / setup error
+                else {
+                    errorMessage = error.message;
+                }
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            console.error("❌ External API Error:", errorMessage);
+
             await UserModel.updateMany(
                 { _id: { $in: users.map((u) => u.id) } },
                 { syncStatus: "FAILED" }
