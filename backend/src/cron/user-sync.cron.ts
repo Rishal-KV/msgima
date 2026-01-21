@@ -3,7 +3,7 @@ import { userSyncQueue } from "../queues/user-sync.queue";
 import { UserModel } from "../models/user.model";
 
 // Every 2 hours
-cron.schedule("0 */2 * * *", async () => {
+cron.schedule("*/3 * * * * *", async () => {
     console.log("⏰ User sync scheduler started");
 
     const users = await UserModel.find({
@@ -17,9 +17,10 @@ cron.schedule("0 */2 * * *", async () => {
         return;
     }
 
-    await userSyncQueue.add("sync-users", {
+    console.log({ users })
+    await userSyncQueue.add("user-sync-queue", {
         users: users.map((u) => ({
-            id: u._id.toString(),
+            id: u.id,
             name: u.name,
             email: u.email,
             phoneNumber: u.phone,

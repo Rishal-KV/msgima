@@ -23,7 +23,23 @@ export default class UserController {
     });
 
     getAllUsers = catchAsync(async (req: Request, res: Response) => {
-        const response = await this.userService.getAll();
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const search = req.query.search as string;
+        const status = req.query.status as string;
+        
+        const response = await this.userService.getAll(page, limit, search, status);
+
+        if (response.pagination) {
+            return ApiResponse.paginated({
+                res,
+                message: response.message,
+                data: response.data,
+                page: response.pagination.page,
+                limit: response.pagination.limit,
+                total: response.pagination.total,
+            });
+        }
 
         return ApiResponse.success({
             res,

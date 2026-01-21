@@ -13,7 +13,10 @@ export const formValidationSchema = Joi.object({
         "Phone number must include a valid country code (e.g. +91XXXXXXXXXX)",
     }),
 
-  profileUrl: Joi.string().uri().optional(),
+  profileUrl: Joi.string()
+    .uri()
+    .optional()
+    .allow(""),
 
   dob: Joi.date().iso().optional(),
 });

@@ -17,7 +17,7 @@ export class UserCreateService {
 
   async create(params: CreateUserParams): ServiceResponse {
     try {
-      // 🔐 Joi validation (same try/catch flow)
+      // 🔐 Joi validation
       const { error, value } = formValidationSchema.validate(params, {
         abortEarly: false,
       });
@@ -47,7 +47,7 @@ export class UserCreateService {
         throw new AppError("Phone number already exists", HTTP.CONFLICT);
       }
 
-      // 💾 Create user (NO password)
+      // 💾 Create user
       const user = await this.userModel.create({
         name: value.name,
         email: value.email,
@@ -57,7 +57,7 @@ export class UserCreateService {
       });
 
       return {
-        data: { userId: user._id },
+        data: { id: user.id },
         message: "User created successfully",
         status: HTTP.CREATED,
         success: true,
@@ -69,14 +69,46 @@ export class UserCreateService {
     }
   }
 
-  async getAll(): Promise<ServiceResponse<IUser[]>> {
+  async getAll(
+    page: number = 1, 
+    limit: number = 10, 
+    search?: string, 
+    status?: string
+  ): Promise<ServiceResponse<IUser[]>> {
     try {
-      const users = await UserModel.find().sort({ createdAt: -1 });
+      const skip = (page - 1) * limit;
+      
+      const query: any = {};
+      
+      if (status) {
+        query.syncStatus = status;
+      }
+      
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } }
+        ];
+      }
+
+      const [users, total] = await Promise.all([
+        this.userModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        this.userModel.countDocuments(query)
+      ]);
+
+      const totalPages = Math.ceil(total / limit);
 
       return {
         success: true,
         message: "Users fetched successfully",
         data: users,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages
+        },
         status: HTTP.OK,
       };
     } catch (error) {

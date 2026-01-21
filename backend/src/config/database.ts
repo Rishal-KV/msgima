@@ -12,6 +12,8 @@ export const connectToMongoDB = async (): Promise<typeof mongoose> => {
       autoIndex: ENV.app.nodeEnv !== "production", // Don't build indexes in production
     };
 
+    console.log({ db: ENV.db.mongoUri })
+
     // Connect to MongoDB
     const connection = await mongoose.connect(ENV.db.mongoUri, options);
 
