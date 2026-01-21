@@ -1,6 +1,8 @@
 import { RedisOptions } from "bullmq";
+import { ENV } from "./env";
 
 export const redisConnection: RedisOptions = {
-  connectionName: "user-sync-redis",
-  url: process.env.REDIS_URL!,
+host: ENV.redis.host,
+port: ENV.redis.port,
+password: ENV.redis.password,
 };
