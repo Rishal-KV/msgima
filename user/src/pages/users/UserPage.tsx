@@ -63,35 +63,39 @@ export default function UserPage() {
     }
 
     return (
-        <div className="flex flex-col space-y-4">
-            <div className="flex items-center justify-between space-y-2">
+        <div className="flex flex-col space-y-6">
+            <div className="flex flex-col gap-2">
                 <h2 className="text-3xl font-bold tracking-tight">Users</h2>
+                <p className="text-muted-foreground">
+                    Manage your users and their payment statuses here.
+                </p>
+            </div>
+            <div className="flex items-center justify-between">
+                <div className="flex flex-1 items-center space-x-4">
+                    <div className="flex-1 max-w-sm">
+                        <Input
+                            placeholder="Search by name, email or phone..."
+                            value={search}
+                            onChange={handleSearchChange}
+                            className="w-full"
+                        />
+                    </div>
+                    <div className="w-[180px]">
+                        <Select value={status} onValueChange={handleStatusChange}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Filter by status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">All Status</SelectItem>
+                                <SelectItem value="PENDING">Pending</SelectItem>
+                                <SelectItem value="SUCCESS">Success</SelectItem>
+                                <SelectItem value="FAILED">Failed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
                 <div className="flex items-center space-x-2">
                     <AddUserForm onSuccess={() => fetchData(page, search, status)} />
-                </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-                <div className="flex-1 max-w-sm">
-                    <Input
-                        placeholder="Search by name, email or phone..."
-                        value={search}
-                        onChange={handleSearchChange}
-                        className="w-full"
-                    />
-                </div>
-                <div className="w-[180px]">
-                    <Select value={status} onValueChange={handleStatusChange}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">All Status</SelectItem>
-                            <SelectItem value="PENDING">Pending</SelectItem>
-                            <SelectItem value="SUCCESS">Success</SelectItem>
-                            <SelectItem value="FAILED">Failed</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
             </div>
 
