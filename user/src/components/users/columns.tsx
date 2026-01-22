@@ -31,6 +31,19 @@ export const columns: ColumnDef<UserPayment>[] = [
         }
     },
     {
+        accessorKey: "dob",
+        header: "Date of Birth",
+        cell: ({ row }) => {
+            const dob = row.getValue("dob") as string
+            if (!dob) return <span className="text-muted-foreground">-</span>
+            try {
+                return new Date(dob).toLocaleDateString()
+            } catch (e) {
+                return dob
+            }
+        }
+    },
+    {
         accessorKey: "profileUrl",
         header: "Portfolio",
         cell: ({ row }) => {
